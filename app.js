@@ -8,7 +8,6 @@ const port = 3000;
 let users;
 let count;
 let chatRooms;
-let messagesArray = [];
 
 const app = express();
 
@@ -121,7 +120,6 @@ app.post('/api/users', (req, res, next) => {
       if(Users[i].username === user.username)
       count++;
     }
-    // Add user if not already signed up
     if(count == 0){
       users.insert(user, (err, User) => {
         if(err){
@@ -131,7 +129,6 @@ app.post('/api/users', (req, res, next) => {
         });
     }
     else {
-      // Alert message logic here
       res.json({ user_already_signed_up: true });
     }
   });
