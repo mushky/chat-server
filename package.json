@@ -1,0 +1,19 @@
+{
+  "name": "chatapp_server",
+  "version": "1.0.0",
+  "description": "Chat App Server",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon"
+  },
+  "author": "Ali Zaidi",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "express": "^4.16.4",
+    "mongodb": "^3.2.3",
+    "nodemon": "^1.18.10",
+    "socket.io": "^2.2.0"
+  }
+}
