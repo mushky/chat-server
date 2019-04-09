@@ -5,15 +5,14 @@ const socket = require('socket.io');
 const ObjectID = require('mongodb').ObjectID;
 const port = 3000;
 
-let users;
-let count;
-let chatRooms;
-
 const app = express();
-
 app.use(bodyParser.json());
 
 const MongoClient = mongodb.MongoClient;
+
+let users;
+let count;
+let chatRooms;
 
 app.use((req, res, next) => {
   res.append('Access-Control-Allow-Origin' , '*');
@@ -23,7 +22,7 @@ app.use((req, res, next) => {
   next();
 });
 
-MongoClient.connect('mongodb://localhost:27017/Chat_App', (err, Database) => {
+MongoClient.connect('mongodb://localhost:27017/Moodster_App', (err, Database) => {
   if(err) {
     console.log(err);
     return false;
@@ -140,22 +139,26 @@ app.post('/api/login', (req, res) => {
   let loggedInUser;
 
   users.find({}).toArray((err, users) => {
-    if(err) return res.send(err);
-      users.forEach((user) => {
-        if((user.username == req.body.username)) {
-          if(user.password == req.body.password) {
+    if(err) {
+      return res.send(err);
+    }
+    users.forEach((user) => {
+      if((user.username == req.body.username)) {
+        if(user.password == req.body.password) {
+          isPresent = true;
+          correctPassword = true;
+          loggedInUser = {
+            username: user.username,
+            email: user.email
+          }    
+          } else {
             isPresent = true;
-            correctPassword = true;
-            loggedInUser = {
-              username: user.username,
-              email: user.email
-            }    
-            } else {
-              isPresent = true;
-            }
+          }
         }
       });
+
     res.json({ isPresent: isPresent, correctPassword: correctPassword, user: loggedInUser });
+    
   });
 });
 
