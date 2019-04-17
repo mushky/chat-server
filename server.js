@@ -158,7 +158,6 @@ app.post('/api/login', (req, res) => {
       });
 
     res.json({ isPresent: isPresent, correctPassword: correctPassword, user: loggedInUser });
-    
   });
 });
 
