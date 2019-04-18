@@ -29,8 +29,8 @@ MongoClient.connect('mongodb://localhost:27017/Moodster_App', (err, Database) =>
   }
 
   const db = Database.db("Moodster_App");
-  const users = db.collection("users");
-  const chatRooms = db.collection("chatRooms");
+  users = db.collection("users");
+  chatRooms = db.collection("chatRooms");
 
   const server = app.listen(port, () => {
     console.log("Server started on port " + port + "...");
