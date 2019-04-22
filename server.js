@@ -10,6 +10,7 @@ app.use(bodyParser.json());
 
 const MongoClient = mongodb.MongoClient;
 
+let db;
 let users;
 let count;
 let chatRooms;
@@ -28,7 +29,7 @@ MongoClient.connect('mongodb://localhost:27017/Moodster_App', (err, Database) =>
     return false;
   }
 
-  const db = Database.db("Moodster_App");
+  db = Database.db("Moodster_App");
   users = db.collection("users");
   chatRooms = db.collection("chatRooms");
 
