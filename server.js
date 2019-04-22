@@ -170,7 +170,7 @@ app.put('/api/users/:username/mood', (req, res) => {
   let name = { username: req.params.username }
   let updatedValues = { $set: {mood: new_mood } };
   
-  db.collection("users").updateOne(name, updatedValues, function(err, res) {
+  db.collection("users").updateOne(name, updatedValues, (err, res) => {
     if (err) {
       throw err;
     }
