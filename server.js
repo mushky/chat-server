@@ -37,27 +37,6 @@ MongoClient.connect('mongodb://localhost:27017/Moodster_App', (err, Database) =>
   });
 
   const io = socket.listen(server);
-  
-  app.put('/api/users/:username/mood', (req, res) => {
-    const username = req.params.username;
-    const new_mood = req.body.mood;
-    let name = { username: req.params.username }
-    let updatedValues = { $set: {mood: new_mood } };
-    
-    db.collection("users").updateOne(name, updatedValues, function(err, res) {
-      if (err) {
-        throw err;
-      }
-
-      console.log(username + "'s" + ' Mood updated to: ' + req.body.mood);
-    });
-    
-    res.json({ 
-      username: req.params.username, 
-      body_mood: req.body.mood 
-    });
-
-  });
 
   io.sockets.on('connection', (socket) => {
     socket.on('join', (data) => {
@@ -181,5 +160,27 @@ app.get('/chatroom/:room', (req, res, next) => {
     res.json(chatroom[0].messages);
     console.log(chatroom);
   });
+});
+
+  
+app.put('/api/users/:username/mood', (req, res) => {
+  const username = req.params.username;
+  const new_mood = req.body.mood;
+  let name = { username: req.params.username }
+  let updatedValues = { $set: {mood: new_mood } };
+  
+  db.collection("users").updateOne(name, updatedValues, function(err, res) {
+    if (err) {
+      throw err;
+    }
+
+    console.log(username + "'s" + ' Mood updated to: ' + req.body.mood);
+  });
+  
+  res.json({ 
+    username: req.params.username, 
+    body_mood: req.body.mood 
+  });
+
 });
 
