@@ -1,20 +1,31 @@
+// using express
 const express = require('express');
+// using bodyParser
 const bodyParser = require('body-parser');
+// using mongodb
 const mongodb = require('mongodb');
+// using socket io
 const socket = require('socket.io');
+// using ObjectId to grab BSON id from mongoDb objects
 const ObjectID = require('mongodb').ObjectID;
+// Running on Port 3000
 const port = 3000;
 
+// App definition 
 const app = express();
+// using bodyparser
 app.use(bodyParser.json());
 
+// Creating a Mongo Client
 const MongoClient = mongodb.MongoClient;
 
+// Defining the Database and the collection types
 let db;
 let users;
 let count;
 let chatRooms;
 
+// What will be appended to every header request
 app.use((req, res, next) => {
   res.append('Access-Control-Allow-Origin' , '*');
   res.append('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
@@ -23,22 +34,31 @@ app.use((req, res, next) => {
   next();
 });
 
+// Identifying where the mongodb database is actually located and what set of collections to look for
 MongoClient.connect('mongodb://localhost:27017/Moodster_App', (err, Database) => {
+  
+  // if there's an error with the connection log the error to the terminal
   if(err) {
     console.log(err);
     return false;
   }
 
+  // Identify the database as moodster_app
   db = Database.db("Moodster_App");
+  // Identify the users collection within the database
   users = db.collection("users");
+  // Identify the chatrooms collection 
   chatRooms = db.collection("chatRooms");
 
+  // Define the server and begin listening on port 3000
   const server = app.listen(port, () => {
     console.log("Server started on port " + port + "...");
   });
 
+  // Define socket io and tell it to listen to the pre-defined server
   const io = socket.listen(server);
 
+  
   io.sockets.on('connection', (socket) => {
     socket.on('join', (data) => {
       socket.join(data.room);
@@ -73,6 +93,8 @@ MongoClient.connect('mongodb://localhost:27017/Moodster_App', (err, Database) =>
         socket.on('typing', (data) => {
           socket.broadcast.in(data.room).emit('typing', {data: data, isTyping: true});
         });
+
+        // Notifications
     });
 }); 
 
@@ -85,7 +107,8 @@ app.post('/api/users', (req, res, next) => {
     username: req.body.username,
     email: req.body.email,
     password: req.body.password,
-    mood: req.body.mood
+    mood: req.body.mood,
+    messages: {}
   };
 
   let count = 0;    
@@ -136,9 +159,38 @@ app.post('/api/login', (req, res) => {
           }
         }
       });
-
     res.json({ isPresent: isPresent, correctPassword: correctPassword, user: loggedInUser });
   });
+});
+
+// Add a Message to the user
+app.post('/api/users/messages', (req, res) => {
+  var message = req.body.message;
+
+  // 1. Obtain the user
+  users.find({}).toArray((err, users) => {
+    if (err) {
+      return res.send(err);
+    }
+    users.forEach((user) => {
+      if((user.username === req.body.username)) {
+        // Construct Return Object
+        messagedUser = {
+          username: user.username,
+          messages: {message}
+        }
+
+        // Update the database with the new message
+        db.collection("users").updateOne(
+          { username: user.username },
+          { $push: { messages: message }}
+        )
+      } else {
+        console.log("Didn't work");
+      }
+    });
+    res.json({user: messagedUser});
+  })
 });
 
 app.get('/api/users', (req, res, next) => {
@@ -149,7 +201,6 @@ app.get('/api/users', (req, res, next) => {
     res.json(users);
   });
 });
-
 
 app.get('/chatroom/:room', (req, res, next) => {
   let room = req.params.room;
