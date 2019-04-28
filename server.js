@@ -185,13 +185,38 @@ app.post('/api/users/messages', (req, res) => {
           { $push: { messages: message }}
         )
       } else {
-        console.log("Didn't work");
+        console.log("messages error");
       }
     });
     res.json({user: messagedUser});
   })
 });
 
+
+// Get user by username
+app.get('/api/users/:username', (req,res) => {
+  let returnedUser;
+  users.find({}).toArray((err, users) => {
+    if (err) {
+      return res.send(err);
+    }
+    users.forEach((user) => {
+      if ((user.username === req.params.username)) {
+        returnedUser = {
+          username: user.username,
+          email: user.email,
+          mood: user.mood,
+          messages: user.messages
+        }
+        console.log(returnedUser);
+      }
+    });
+    console.log(returnedUser);
+    res.json({user: returnedUser});
+  })
+})
+
+// Get all users
 app.get('/api/users', (req, res, next) => {
   users.find({}, {username: 1, email: 1, _id: 0}).toArray((err, users) => {
     if(err) {
@@ -201,6 +226,7 @@ app.get('/api/users', (req, res, next) => {
   });
 });
 
+// Get Chatroom by room
 app.get('/chatroom/:room', (req, res, next) => {
   let room = req.params.room;
   chatRooms.find({name: room}).toArray((err, chatroom) => {
@@ -213,7 +239,8 @@ app.get('/chatroom/:room', (req, res, next) => {
   });
 });
 
-  
+
+// Change User Mood
 app.put('/api/users/:username/mood', (req, res) => {
   const username = req.params.username;
   const new_mood = req.body.mood;
