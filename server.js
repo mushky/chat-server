@@ -165,8 +165,8 @@ app.post('/api/login', (req, res) => {
 
 // Add a Message to the user
 app.post('/api/users/messages', (req, res) => {
-  var message = req.body.message;
-
+  let message = req.body.message;
+  let messagedUser;
   // 1. Obtain the user
   users.find({}).toArray((err, users) => {
     if (err) {
@@ -179,7 +179,6 @@ app.post('/api/users/messages', (req, res) => {
           username: user.username,
           messages: {message}
         }
-
         // Update the database with the new message
         db.collection("users").updateOne(
           { username: user.username },
