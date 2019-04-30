@@ -58,7 +58,7 @@ MongoClient.connect('mongodb://localhost:27017/Moodster_App', (err, Database) =>
   // Define socket io and tell it to listen to the pre-defined server
   const io = socket.listen(server);
 
-  
+  // Sockets
   io.sockets.on('connection', (socket) => {
     socket.on('join', (data) => {
       socket.join(data.room);
@@ -98,10 +98,12 @@ MongoClient.connect('mongodb://localhost:27017/Moodster_App', (err, Database) =>
     });
 }); 
 
+// Index
 app.get('/', (req, res, next) => {
   res.send('Express Server Started');
 });
 
+// Create new user
 app.post('/api/users', (req, res, next) => {
   let user = {
     username: req.body.username,
@@ -136,6 +138,7 @@ app.post('/api/users', (req, res, next) => {
   });
 });
 
+// Login user
 app.post('/api/login', (req, res) => {
   let isPresent = false;
   let correctPassword = false;
@@ -164,34 +167,47 @@ app.post('/api/login', (req, res) => {
 });
 
 // Add a Message to the user
-app.post('/api/users/messages', (req, res) => {
-  let message = req.body.message;
-  let messagedUser;
+app.post('/api/users/notifications', (req, res) => {
+  let notification = req.body.notification;
+  let notifiedUser;
+
+  console.log(notification.username);
   // 1. Obtain the user
   users.find({}).toArray((err, users) => {
     if (err) {
+      console.log(err);
       return res.send(err);
     }
     users.forEach((user) => {
-      if((user.username === req.body.username)) {
+      console.log(req.body.notification);
+      if((user.username === notification.username)) {
         // Construct Return Object
-        messagedUser = {
-          username: user.username,
-          messages: {message}
+        notifiedUser = {
+          notices: notification
         }
         // Update the database with the new message
         db.collection("users").updateOne(
           { username: user.username },
-          { $push: { messages: message }}
+          { $push: { notices: notification }}
         )
       } else {
         console.log("messages error");
       }
     });
-    res.json({user: messagedUser});
+    res.json({user: notifiedUser});
+
   })
 });
 
+// Get all users
+app.get('/api/users', (req, res, next) => {
+  users.find({}, {username: 1, email: 1, _id: 0}).toArray((err, users) => {
+    if(err) {
+      res.send(err);
+    }
+    res.json(users);
+  });
+});
 
 // Get user by username
 app.get('/api/users/:username', (req,res) => {
@@ -216,15 +232,6 @@ app.get('/api/users/:username', (req,res) => {
   })
 })
 
-// Get all users
-app.get('/api/users', (req, res, next) => {
-  users.find({}, {username: 1, email: 1, _id: 0}).toArray((err, users) => {
-    if(err) {
-      res.send(err);
-    }
-    res.json(users);
-  });
-});
 
 // Get Chatroom by room
 app.get('/chatroom/:room', (req, res, next) => {
