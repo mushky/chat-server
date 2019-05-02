@@ -222,7 +222,7 @@ app.get('/api/users/:username', (req,res) => {
           username: user.username,
           email: user.email,
           mood: user.mood,
-          messages: user.messages
+          notices: user.notifications
         }
         console.log(returnedUser);
       }
